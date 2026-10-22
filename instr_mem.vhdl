@@ -39,13 +39,29 @@ architecture Behavioral of instr_mem is
         --  111111000111 = inverted
         --            +1
         --  111111001000 = 12-bit "-56" for the immediate
-        19 => x"F80298E3", --       bne x5, x0, loop       1 111100 00000 00101 001 1000 1 1100011 [-56; note: assumes PC is already incremented by 4]
-                                                        -- 1111 1000 0000 0010 1001 1000 1110 0011
+        --19 => x"F80298E3", --       bne x5, x0, loop       1 111100 00000 00101 001 1000 1 1100011 [-56; note: assumes PC is already incremented by 4]
+                                                          -- 1111 1000 0000 0010 1001 1000 1110 0011
+														  
+												   -- 2027 change
+												   --[jump -56; note: assumes PC is incremented by 4 and imm 32-bit aligned]
+												   -- -56 == -...00111000 => ...11000111 + 1 = ....11111111001000
+												   -- shift right by 2 so 32-bit aligned =>    ......111111110010
+												   -- <imm[11]> <imm[9:4]> <5-bit rs2> <5-bit rs1> <3-bit funct3> <imm[3:0]><imm[10]><7-bit opcode>
+		19 => x"FE0293E3", -- bne x5, x0, loop	   --     1       111111      00000       00101         001          0010      1        1100011  
+		                                           --                 1111 1110 0000      0010         1001          0010 1110 0011
+		                                           --                 1111 1110 0000 0010 1001 0010 1110 0011										
         20 => x"00000000", -- NOP
         21 => x"00000000", -- NOP
         22 => x"00000000", -- NOP    
-        23 => x"FF9FF06F", -- done: j done            1 1111111100 1 11111111 00000 1101111  [jump -4; note: assumes PC is incremented by 4]
+        --23 => x"FF9FF06F", -- done: j done              1 1111111100 1 11111111 00000 1101111  [jump -4; note: assumes PC is incremented by 4]
                                                          -- 1111 1111 1001 1111 1111 0000 0110 1111
+                                                   -- 2027 change ***
+		23 => x"FFFFF06F", -- done: j done          -4 bytes == ...111100 2'comp  [jump -4; note: assumes PC is incremented by 4 and imm is 32-bit aligned]
+		                                           -- shift right 2 so 32-bit aligned => ....111111
+												   --<imm[21]> <imm[10:1]> <imm[11]> <imm[19:12]><5-bit rd> <7-bit opcode>
+		                                           --     1    11111111111     1       11111111     00000     1101111 
+                                                   --                      1111 1111 1111 1111 1111 0000 0110 1111   
+														 
         -- version without NOPs
 --        0 => x"00900293", -- addi x5, x0, 9         000000001001 00000 000 00101 0010011
 --        1 => x"00000317", -- load_addr x6, array (custom instruction), where array is 0x10000000
@@ -54,8 +70,8 @@ architecture Behavioral of instr_mem is
 --        4 => x"00032503", --       lw x10, 0(x6)    000000000000 00110 010 01010 0000011
 --        5 => x"007503B3", --       add x7, x10, x7  0000000 00111 01010 000 00111 0110011
 --        6 => x"00129293", --       subi x5, x5, 1   000000000001 00101 001 00101 0010011
---        7 => x"FC029CE3", --       bne x5, x0, loop   1 111101 00000 00101 001 100 x 1 1100011 [jump -20; note: assumes PC is incremented by 4]
---        8 => x"FF9FF06F", -- done: j done            1 1111111100 1 11111111 00000 1101111  [jump -4; note: assumes PC is incremented by 4]
+--        7 => x"FE029BE3", --       bne x5, x0, loop    [jump -20; note: assumes PC is incremented by 4]
+--        8 => x"FFFFF06F", -- done: j done              [jump -4; note: assumes PC is incremented by 4]
  
         others => (others => '0')
     );
