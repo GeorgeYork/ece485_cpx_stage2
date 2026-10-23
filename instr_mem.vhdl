@@ -41,15 +41,15 @@ architecture Behavioral of instr_mem is
         --  111111001000 = 12-bit "-56" for the immediate
         --19 => x"F80298E3", --       bne x5, x0, loop       1 111100 00000 00101 001 1000 1 1100011 [-56; note: assumes PC is already incremented by 4]
                                                           -- 1111 1000 0000 0010 1001 1000 1110 0011
-														  
-												   -- 2027 change
-												   --[jump -56; note: assumes PC is incremented by 4 and imm 32-bit aligned]
-												   -- -56 == -...00111000 => ...11000111 + 1 = ....11111111001000
-												   -- shift right by 2 so 32-bit aligned =>    ......111111110010
-												   -- <imm[11]> <imm[9:4]> <5-bit rs2> <5-bit rs1> <3-bit funct3> <imm[3:0]><imm[10]><7-bit opcode>
-		19 => x"FE0293E3", -- bne x5, x0, loop	   --     1       111111      00000       00101         001          0010      1        1100011  
-		                                           --                 1111 1110 0000      0010         1001          0010 1110 0011
-		                                           --                 1111 1110 0000 0010 1001 0010 1110 0011										
+														---52?							  
+                                                     -- 2027 change
+                                                     --[jump -56; note: assumes PC is incremented by 4 and imm 32-bit aligned]
+                                                     -- -56 == -...00111000 => ...11000111 + 1 = ....11111111001000
+                                                     -- shift right by 2 so 32-bit aligned =>    ......111111110010
+                                                     -- <imm[11]> <imm[9:4]> <5-bit rs2> <5-bit rs1> <3-bit funct3> <imm[3:0]><imm[10]><7-bit opcode>
+        19 => x"FE0292E3", -- bne x5, x0, loop       --     1       111111      00000       00101         001          0010      1        1100011  
+                                                     --                1111 1110 0000       0010         1001          0010 1110 0011
+                                                     --                 1111 1110 0000 0010 1001 0010 1110 0011							
         20 => x"00000000", -- NOP
         21 => x"00000000", -- NOP
         22 => x"00000000", -- NOP    
